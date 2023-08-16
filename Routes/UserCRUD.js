@@ -141,9 +141,9 @@ router.post("/follow", error(async ( req, res, next)=>{
             return sendResponse(false, "User you are trying to follow doesnt exist", res);
          }  
          
-         let followingPresent = user1.following.find((rev) => (rev.followersId.toString() === user2._id)); 
+         let followingPresent = user1.following.find((rev) => (rev.followingId.toString() === user2._id.toString())); 
          if(followingPresent){
-            return sendResponse(true, "You are already following this user");
+            return sendResponse(true, "You are already following this user", res);
          }
          user1.following.push({
             followingId : user2._id
@@ -159,7 +159,33 @@ router.post("/follow", error(async ( req, res, next)=>{
          })
 }))
 
+router.post("/unfollow", error(async ( req, res, next)=>{
+    let {useEmail, followinguser} = req.body;
+        let user1 = await User.findOne({email : useEmail});
+        let user2 = await User.findOne({email : followinguser});
+        if(!user1){
+           return sendResponse(false, "User doesnt Exists", res);
+        }
+        if(!user2){
+            return sendResponse(false, "User you are trying to unfollow doesnt exist", res);
+         }  
+         
+         let followingPresent = user1.following.find((rev) => (rev.followingId.toString() === user2._id.toString())); 
+         if(!followingPresent){
+            return sendResponse(true, "You cannot unfollow because you are not following user", res);
+         }
 
+         let following = user1.following.filter((rev)=>(rev.followingId.toString() === user2._id.toString()));
+         let follower =  user2.followers.filter((rev)=>(rev.followersId.toString() === user1._id.toString()));
+         user1.following = following;
+         user2.followers = follower;
+         await user1.save();
+         await user2.save();
+         res.json({
+            success: true, 
+            message: "Unfollow Successfull",
+         })
+}))
 
 
 
