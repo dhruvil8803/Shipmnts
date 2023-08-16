@@ -175,8 +175,8 @@ router.post("/unfollow", error(async ( req, res, next)=>{
             return sendResponse(true, "You cannot unfollow because you are not following user", res);
          }
 
-         let following = user1.following.filter((rev)=>(rev.followingId.toString() === user2._id.toString()));
-         let follower =  user2.followers.filter((rev)=>(rev.followersId.toString() === user1._id.toString()));
+         let following = user1.following.filter((rev)=>(rev.followingId.toString() !== user2._id.toString()));
+         let follower =  user2.followers.filter((rev)=>(rev.followersId.toString() !== user1._id.toString()));
          user1.following = following;
          user2.followers = follower;
          await user1.save();
